@@ -1,0 +1,57 @@
+#!/bin/bash
+
+USERNAME="vanilla"
+FULL_NAME="vanilla"
+PASSWORD="vanilla"
+USER_UID=1200
+USER_GROUPS="sudo,lpadmin,vanilla-first-setup"
+SETUP_GROUP="vanilla-first-setup"
+SETUP_GID=1201
+
+if ! [ -z "$1" ]; then
+    echo "usage:"
+    echo "create-first-setup-user"
+    exit 5
+fi
+
+if ! [ "$UID" == "0" ]; then
+    echo "this script must be run with super user privileges"
+    exit 6
+fi
+
+if ! getent group "$SETUP_GROUP" >/dev/null; then
+    echo "Creating group: $SETUP_GROUP"
+    groupadd -g "$SETUP_GID" "$SETUP_GROUP"
+fi
+
+if id "$USERNAME" &>/dev/null; then
+    echo "User $USERNAME already exists."
+else
+    echo "Creating first-setup user: $USERNAME"
+    useradd --uid "$USER_UID" --create-home --shell /bin/bash \
+        --comment "$FULL_NAME" --groups "$USER_GROUPS" "$USERNAME"
+    if ! [ "$?" == 0 ]; then
+        exit 1
+    fi
+    echo "$USERNAME:$PASSWORD" | chpasswd
+fi
+
+# Specifically designed for GDM.
+mkdir -p /etc/gdm3
+printf '[daemon]\nAutomaticLogin=%s\nAutomaticLoginEnable=True\n' "$USERNAME" > /etc/gdm3/daemon.conf
+mkdir -p "/home/$USERNAME/.config/dconf"
+chmod 700 "/home/$USERNAME/.config/dconf"
+
+mkdir -p /var/lib/AccountsService/users
+printf '[User]\nSession=firstsetup\n' > "/var/lib/AccountsService/users/$USERNAME"
+systemctl restart accounts-daemon.service
+
+mkdir -p "/home/$USERNAME/.config/autostart"
+if [ -f /usr/share/applications/org.vanillaos.FirstSetup.desktop ]; then
+    cp /usr/share/applications/org.vanillaos.FirstSetup.desktop "/home/$USERNAME/.config/autostart"
+fi
+
+chown -R "$USERNAME:$USERNAME" "/home/$USERNAME"
+
+rm -f /etc/systemd/system/multi-user.target.wants/create-first-setup-user.service
+exit 0

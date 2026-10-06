@@ -1,0 +1,11 @@
+[Unit]
+Description=Create the first-setup user for vanilla-first-setup
+Before=display-manager.service
+
+[Service]
+ExecStart=/usr/libexec/create-first-setup-user
+Type=oneshot
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

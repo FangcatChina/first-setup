@@ -91,23 +91,7 @@ meson install -C build
 
 A special user is needed to run the initial setup for hostname, user-creation, locale, etc.
 
-1. Create a user
-2. Create the group vanilla-first-setup (Changing the gid is recommended to avoid messing with user groups)
-3. Add the user to group vanilla-first-setup
-4. Create the file `/var/lib/AccountsService/users/your_user`
-```ini
-[User]
-Session=firstsetup
-```
-5. Create the file `/etc/gdm3/daemon.conf` (replace your_user)
-```ini
-[daemon]
-AutomaticLogin=your_user
-AutomaticLoginEnable=True
-```
-
-> [!WARNING]  
-> All users in this group will be deleted on the first reboot after a successful first setup.
+To create the user, please run `systemctl enable create-first-setup-user.service` in advance.
 
 ### Running
 ```bash

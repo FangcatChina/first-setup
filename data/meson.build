@@ -66,4 +66,14 @@ install_data(
   install_dir: join_paths(get_option('prefix'), 'libexec')
 )
 
+install_data(
+  'create-first-setup-user.service',
+  install_dir: join_paths(get_option('prefix'), get_option('datadir'), meson.project_name())
+)
+
+install_data(
+  'create-first-setup-user',
+  install_dir: join_paths(get_option('prefix'), 'libexec')
+)
+
 subdir('icons')
