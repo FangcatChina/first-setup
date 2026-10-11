@@ -66,4 +66,14 @@ install_data(
   install_dir: join_paths(get_option('prefix'), 'libexec')
 )
 
+install_data(
+  'firstsetup.conf',
+  install_dir: join_paths(get_option('prefix'), 'lib', 'sysusers.d')
+)
+
+install_data(
+  'firstsetup-tmpfiles.conf',
+  install_dir: join_paths(get_option('prefix'), 'lib', 'tmpfiles.d')
+)
+
 subdir('icons')
